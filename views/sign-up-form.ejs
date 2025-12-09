@@ -62,6 +62,17 @@
             id="confirmPassword"
             required />
         </div>
+        <div class="input-group">
+          <label for="admin-checkbox">Admin Perms</label>
+          <input
+            id="admin-checkbox"
+            type="checkbox"
+            onchange="document.getElementById('admin-container').hidden = !this.checked;" />
+        </div>
+        <div class="input-group" id="admin-container" hidden>
+          <label for="adminCode">Admin Code: </label>
+          <input type="password" name="adminCode" id="adminCode" />
+        </div>
         <button type="submit" class="btn-submit">Create Account</button>
       </form>
       <% if (locals.errors) { %>

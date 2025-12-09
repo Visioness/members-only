@@ -2,7 +2,7 @@ const pool = require('./pool');
 
 const getAllMessages = async () => {
   const { rows } = await pool.query(
-    'SELECT title, text, timestamp, username AS author FROM messages JOIN users ON users.id = author_id'
+    'SELECT messages.id, title, text, timestamp, username AS author FROM messages JOIN users ON users.id = author_id'
   );
   return rows;
 };
@@ -12,6 +12,13 @@ const getUserByUsername = async (username) => {
     'SELECT * FROM users WHERE username = $1;',
     [username]
   );
+  return rows[0];
+};
+
+const getMessageById = async (id) => {
+  const { rows } = await pool.query('SELECT * FROM messages WHERE id = $1', [
+    id,
+  ]);
   return rows[0];
 };
 
@@ -27,11 +34,12 @@ const createUser = async (
   lastName,
   username,
   password,
-  hasMembership
+  hasMembership,
+  isAdmin
 ) => {
   await pool.query(
-    'INSERT INTO users (first_name, last_name, username, password, has_membership) VALUES ($1, $2, $3, $4, $5);',
-    [firstName, lastName, username, password, hasMembership]
+    'INSERT INTO users (first_name, last_name, username, password, has_membership, is_admin) VALUES ($1, $2, $3, $4, $5, $6);',
+    [firstName, lastName, username, password, hasMembership, isAdmin]
   );
 };
 
@@ -42,10 +50,16 @@ const createMessage = async (authorId, title, text) => {
   );
 };
 
+const deleteMessage = async (id) => {
+  await pool.query('DELETE FROM messages WHERE id = $1', [id]);
+};
+
 module.exports = {
   getAllMessages,
   getUserByUsername,
+  getMessageById,
   addMembership,
   createUser,
   createMessage,
+  deleteMessage,
 };

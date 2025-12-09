@@ -8,7 +8,8 @@ const SQL = `
     last_name VARCHAR ( 255 ) NOT NULL,
     username VARCHAR ( 255 ),
     password VARCHAR ( 255 ) NOT NULL,
-    has_membership BOOLEAN NOT NULL
+    has_membership BOOLEAN NOT NULL,
+    is_admin BOOLEAN NOT NULL
   );
 
   CREATE TABLE messages (

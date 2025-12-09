@@ -22,24 +22,29 @@
     <main>
       <% if (locals.messages) { %>
       <h2>Messages</h2>
-      <ul>
-        <% if (messages.length > 0) { %> <% messages.forEach(message => { %>
+      <ul class="messages">
+        <% if (messages.length > 0) { %>
+        <% messages.forEach(message => { %>
         <li>
-          <div class="message">
+          <div class="message" data-message-id="<%= message.id %>">
             <h3 class="title"><%= message.title %></h3>
             <p class="text"><%= message.text %></p>
-            <% if (locals.currentUser && locals.currentUser.has_membership) { %>
-            <span class="timestamp"
-              ><%= message.timestamp.toLocaleDateString() %> - <%=
-              message.timestamp.toLocaleTimeString() %></span
-            >
+            <% if (locals.currentUser) { %>
+            <% if (currentUser.is_admin || currentUser.has_membership) { %>
+            <span class="timestamp"><%= message.timestamp.toLocaleDateString() %> - <%=message.timestamp.toLocaleTimeString() %></span>
             <span class="author"><%= message.author %></span>
+            <% } %>
+            <% if (currentUser.is_admin) { %>
+            <button class="btn-delete">Delete</button>
+            <% } %>
             <% } %>
           </div>
         </li>
-        <% }) %> <% } else { %>
+        <% }) %>
+        <% } else { %>
         <p>Be first to add messages!</p>
-        <% } %> <% if (locals.currentUser) { %>
+        <% } %>
+        <% if (locals.currentUser) { %>
         <button type="button" class="btn-new">Create New Message</button>
         <div class="new-message-container" hidden>
           <form action="/messages/new" method="POST">
@@ -63,9 +68,13 @@
         </div>
         <% if (!currentUser.has_membership) { %>
         <button type="button" class="btn-secret">Unhide The Secret</button>
-        <% } %> <% } %>
+        <% } %> 
+        <% } %>
       </ul>
       <% } %>
+      <div class="delete-container" hidden>
+        <form action="/messages/messageId/delete" method="POST"></form>
+      </div>
       <dialog class="secret-dialog">
         <div class="secret-container">
           <form action="/secret" method="POST">
@@ -86,13 +95,15 @@
           <button id="close-dialog" class="btn-cancel">X</button>
         </div>
       </dialog>
-      <% if (locals.errors) { %> <% if (errors.length > 0) { %>
+      <% if (locals.errors) { %>
+      <% if (errors.length > 0) { %>
       <ul class="errors">
         <% errors.forEach(error => { %>
         <li class="error"><%= error.msg %></li>
         <% }) %>
       </ul>
-      <% } %> <% } %>
+      <% } %>
+      <% } %>
     </main>
 
     <script>
@@ -106,21 +117,39 @@
       const secretButton = document.querySelector('.btn-secret');
       const closeButton = document.getElementById('close-dialog');
 
-      [newMessageButton, cancelButton].forEach((button) => {
-        button.addEventListener('click', () => {
-          newMessageContainer.hidden = !newMessageContainer.hidden;
+      if ((newMessageButton, cancelButton)) {
+        [newMessageButton, cancelButton].forEach((button) => {
+          button.addEventListener('click', () => {
+            newMessageContainer.hidden = !newMessageContainer.hidden;
+          });
         });
-      });
+      }
 
-      secretButton.addEventListener('click', () => {
-        secretButton.hidden = true;
-        secretDialog.showModal();
-      });
+      if (secretButton) {
+        secretButton.addEventListener('click', () => {
+          secretButton.hidden = true;
+          secretDialog.showModal();
+        });
 
-      closeButton.addEventListener('click', () => {
-        secretButton.hidden = false;
-        secretDialog.close();
-      });
+        closeButton.addEventListener('click', () => {
+          secretButton.hidden = false;
+          secretDialog.close();
+        });
+      }
+
+      const messageList = document.querySelector('.messages');
+      const deleteForm = document.querySelector('.delete-container > form');
+      if (messageList && deleteForm) {
+        messageList.addEventListener('click', (e) => {
+          if (e.target.classList.contains('btn-delete')) {
+            if (confirm('Are you sure to delete this message?')) {
+              const message = e.target.closest('.message');
+              deleteForm.action = `messages/${message.dataset.messageId}/delete`;
+              deleteForm.submit();
+            }
+          }
+        });
+      }
     </script>
   </body>
 </html>

@@ -11,22 +11,6 @@ const getAllMessages = async (req, res) => {
   res.render('index', { messages });
 };
 
-const createMessage = [
-  messageValidation,
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).render('/', {
-        errors: errors.array(),
-      });
-    }
-
-    const { title, text } = matchedData(req);
-    await db.createMessage(res.locals.currentUser.id, title, text);
-    res.redirect('/');
-  },
-];
-
 const submitSecretForm = [
   body('secretCode')
     .trim()
@@ -55,8 +39,45 @@ const submitSecretForm = [
   },
 ];
 
+const createMessage = [
+  messageValidation,
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).render('/', {
+        errors: errors.array(),
+      });
+    }
+
+    const { title, text } = matchedData(req);
+    await db.createMessage(res.locals.currentUser.id, title, text);
+    res.redirect('/');
+  },
+];
+
+const deleteMessage = async (req, res) => {
+  if (!res.currentUser || !res.currentUser.is_admin) {
+    return res.status(403).render('index', {
+      errors: [{ msg: 'You do not have permissions to delete messages.' }],
+    });
+  }
+
+  const { messageId } = req.params;
+  const isExistingMessage = await db.getMessageById(messageId);
+
+  if (isExistingMessage == undefined) {
+    return res.status(400).render('index', {
+      errors: [{ msg: 'Could not find the requested message.' }],
+    });
+  }
+
+  await db.deleteMessage(messageId);
+  res.redirect('/');
+};
+
 module.exports = {
   getAllMessages,
   submitSecretForm,
   createMessage,
+  deleteMessage,
 };

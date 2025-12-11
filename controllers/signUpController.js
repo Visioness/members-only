@@ -6,12 +6,23 @@ const signUpValidation = [
   body('firstName')
     .trim()
     .notEmpty()
-    .withMessage('First name can not be empty.'),
-  body('lastName').trim().notEmpty().withMessage('Last name can not be empty.'),
+    .withMessage('First name can not be empty.')
+    .isLength({ min: 1, max: 30 })
+    .withMessage('First name must be between 1 and 30 characters.'),
+  body('lastName')
+    .trim()
+    .notEmpty()
+    .withMessage('Last name can not be empty.')
+    .isLength({ min: 1, max: 30 })
+    .withMessage('Last name must be between 1 and 30 characters.'),
   body('username')
     .trim()
     .notEmpty()
     .withMessage('Username can not be empty.')
+    .isLength({ min: 3, max: 20 })
+    .withMessage('Username must be between 3 and 20 characters.')
+    .isAlphanumeric()
+    .withMessage('Username must contain only letters and numbers.')
     .custom(async (value) => {
       const user = await db.getUserByUsername(value);
       if (user != undefined) {
@@ -23,8 +34,8 @@ const signUpValidation = [
     .trim()
     .notEmpty()
     .withMessage('Password can not be empty.')
-    .isLength({ min: 5 })
-    .withMessage('Password must contain 5 characters at least.'),
+    .isLength({ min: 8 })
+    .withMessage('Password must contain 8 characters at least.'),
   body('confirmPassword')
     .trim()
     .notEmpty()
@@ -34,25 +45,29 @@ const signUpValidation = [
   body('adminCode').optional(),
 ];
 
-const getSignUpForm = (req, res) => {
-  if (res.locals.currentUser) {
-    return res.redirect('/');
-  }
+const getSignUpForm = (req, res, next) => {
+  try {
+    if (res.locals.currentUser) {
+      return res.redirect('/');
+    }
 
-  res.render('sign-up-form');
+    res.render('sign-up-form');
+  } catch (error) {
+    next(error);
+  }
 };
 
 const submitSignUpForm = [
   signUpValidation,
   async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).render('sign-up-form', {
-        errors: errors.array(),
-      });
-    }
-
     try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).render('sign-up-form', {
+          errors: errors.array(),
+        });
+      }
+
       const { firstName, lastName, username, password, adminCode } =
         matchedData(req);
       const hashedPassword = await bcrypt.hash(password, 10);

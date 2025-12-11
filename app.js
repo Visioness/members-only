@@ -16,20 +16,25 @@ const logInRouter = require('./routes/logInRouter');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Static files
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 // Session setup
 app.use(
   session({
-    store: new pgSession({
-      pool,
-      createTableIfMissing: true,
-    }),
-    secret: 'fake secret',
+    store: new pgSession({ pool, createTableIfMissing: true }),
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 24 * 60 * 60 * 1000 },
+    cookie: {
+      maxAge: 24 * 60 * 60 * 1000,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'Production',
+      sameSite: 'strict',
+    },
   })
 );
 app.use(passport.session());

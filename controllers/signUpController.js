@@ -40,7 +40,9 @@ const signUpValidation = [
     .trim()
     .notEmpty()
     .withMessage('Confirm Password can not be empty.')
-    .custom((value, { req }) => value === req.body.password)
+    .custom((value, { req }) => {
+      return value === req.body.password.trim();
+    })
     .withMessage('Passwords can not be different.'),
   body('adminCode').optional(),
 ];

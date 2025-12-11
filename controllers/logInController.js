@@ -12,16 +12,10 @@ const getLogInForm = (req, res, next) => {
   }
 };
 
-const submitLogInForm = (req, res, next) => {
-  try {
-    passport.authenticate('local', {
-      successRedirect: '/',
-      failureRedirect: '/log-in',
-      failureFlash: true,
-    })(req, res, next);
-  } catch (error) {
-    next(error);
-  }
-};
+const submitLogInForm = passport.authenticate('local', {
+  successRedirect: '/',
+  failureRedirect: '/log-in',
+  failureFlash: true,
+});
 
 module.exports = { getLogInForm, submitLogInForm };

@@ -7,7 +7,7 @@ poolConfig.connectionString =
   DB_CONNECTION_STRING ||
   `postgresql://${USER}:${PASSWORD}@${HOST}:${DB_PORT}/${DB}`;
 
-if (process.env.NODE_ENV === 'Production') {
+if (process.env.NODE_ENV === 'production') {
   poolConfig.ssl = { require: true };
 }
 

@@ -3,11 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="preload" href="/assets/background.jpg" as="image">
     <title>Members Only | Sign Up</title>
   </head>
   <body>
     <header>
-      <a href="/">
+      <a class="title" href="/">
         <h1>Members Only</h1>
       </a>
       <nav>
@@ -20,68 +22,79 @@
       </nav>
     </header>
     <main>
-      <form action="/sign-up" method="POST">
-        <h2>Sign Up</h2>
-        <p>Create an account to see authors of the posts.</p>
-        <div class="input-group">
-          <label for="firstName">First Name: </label>
-          <input
-            type="text"
-            name="firstName"
-            id="firstName"
-            placeholder="John"
-            required />
+      <div class="form-container">
+        <form id="sign-up-form" action="/sign-up" method="POST">
+          <h2>Sign Up</h2>
+          <p>Create an account to have full access to features.</p>
+          <div class="input-group">
+            <label for="firstName">First Name: </label>
+            <input
+              type="text"
+              name="firstName"
+              id="firstName"
+              placeholder="John"
+              required />
+          </div>
+          <div class="input-group">
+            <label for="lastName">Last Name: </label>
+            <input
+              type="text"
+              name="lastName"
+              id="lastName"
+              placeholder="Doe"
+              required />
+          </div>
+          <div class="input-group">
+            <label for="username">Username: </label>
+            <input
+              type="text"
+              name="username"
+              id="username"
+              placeholder="DoeJohn123 / johndoe@example.com"
+              required />
+          </div>
+          <div class="input-group">
+            <label for="password">Password: </label>
+            <input type="password" name="password" id="password" required />
+          </div>
+          <div class="input-group">
+            <label for="confirmPassword">Confirm Password: </label>
+            <input
+              type="password"
+              name="confirmPassword"
+              id="confirmPassword"
+              required />
+          </div>
+          <div class="input-group">
+            <label for="admin-checkbox">Admin Perms</label>
+            <input
+              id="admin-checkbox"
+              type="checkbox"
+              onchange="document.getElementById('admin-container').hidden = !this.checked; document.getElementById('admin-container').classList.toggle('hidden');" />
+          </div>
+          <div class="input-group hidden" id="admin-container" hidden>
+            <label for="adminCode">Admin Code: </label>
+            <input type="password" name="adminCode" id="adminCode" />
+          </div>
+          <button type="submit" class="btn-submit">Create Account</button>
+        </form>
+        <div class="error-container">
+          <% if (locals.errors) { %>
+          <% if (errors.length> 0) { %>
+            <ul class="errors">
+              <% errors.forEach(error=> { %>
+                <li class="error">
+                  <%= error.msg || error %>
+                </li>
+              <% }) %>
+            </ul>
+          <% } %>
+          <% } %>
         </div>
-        <div class="input-group">
-          <label for="lastName">Last Name: </label>
-          <input
-            type="text"
-            name="lastName"
-            id="lastName"
-            placeholder="Doe"
-            required />
-        </div>
-        <div class="input-group">
-          <label for="username">Username: </label>
-          <input
-            type="text"
-            name="username"
-            id="username"
-            placeholder="DoeJohn123 / johndoe@example.com"
-            required />
-        </div>
-        <div class="input-group">
-          <label for="password">Password: </label>
-          <input type="password" name="password" id="password" required />
-        </div>
-        <div class="input-group">
-          <label for="confirmPassword">Confirm Password: </label>
-          <input
-            type="password"
-            name="confirmPassword"
-            id="confirmPassword"
-            required />
-        </div>
-        <div class="input-group">
-          <label for="admin-checkbox">Admin Perms</label>
-          <input
-            id="admin-checkbox"
-            type="checkbox"
-            onchange="document.getElementById('admin-container').hidden = !this.checked;" />
-        </div>
-        <div class="input-group" id="admin-container" hidden>
-          <label for="adminCode">Admin Code: </label>
-          <input type="password" name="adminCode" id="adminCode" />
-        </div>
-        <button type="submit" class="btn-submit">Create Account</button>
-      </form>
-      <% if (locals.errors) { %>
-      <ul>
-        <% errors.forEach(error => { %>
-        <li><%= error.msg %></li>
-        <% }) %>
-      </ul>
-      <% } %>
+      </div>
     </main>
+    <footer>
+      <span>by <a href="https://github.com/Visioness">Visioness</a></span>
+    </footer>
   </body>
 </html>

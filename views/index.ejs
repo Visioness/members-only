@@ -3,13 +3,25 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="preload" href="/assets/background.jpg" as="image">
     <title>Members Only | Messages</title>
   </head>
   <body>
     <header>
-      <a href="/">
+      <a class="title" href="/">
         <h1>Members Only</h1>
       </a>
+      <% if (locals.currentUser) { %>
+        <div class="profile">
+          <span class="username"><%= currentUser.username %></span>
+          <% if (currentUser.is_admin) { %>
+          <span class="badge admin">Admin</span>
+          <% } else if (currentUser.has_membership) { %>
+          <span class="badge member">Member</span>
+          <% } %>
+        </div>
+      <% } %>
       <nav>
         <% if (locals.currentUser) { %>
         <a href="/log-out">Log Out</a>
@@ -20,91 +32,112 @@
       </nav>
     </header>
     <main>
-      <% if (locals.messages) { %>
-      <h2>Messages</h2>
-      <ul class="messages">
-        <% if (messages.length > 0) { %>
-        <% messages.forEach(message => { %>
-        <li>
-          <div class="message" data-message-id="<%= message.id %>">
-            <h3 class="title"><%= message.title %></h3>
-            <p class="text"><%= message.text %></p>
-            <% if (locals.currentUser) { %>
-            <% if (currentUser.is_admin || currentUser.has_membership) { %>
-            <span class="timestamp"><%= message.timestamp.toLocaleDateString() %> - <%=message.timestamp.toLocaleTimeString() %></span>
-            <span class="author"><%= message.author %></span>
-            <% } %>
-            <% if (currentUser.is_admin) { %>
-            <button class="btn-delete">Delete</button>
-            <% } %>
-            <% } %>
-          </div>
-        </li>
-        <% }) %>
-        <% } else { %>
-        <p>Be first to add messages!</p>
-        <% } %>
-        <% if (locals.currentUser) { %>
-        <button type="button" class="btn-new">Create New Message</button>
-        <div class="new-message-container" hidden>
-          <form action="/messages/new" method="POST">
-            <input
-              type="text"
-              name="title"
-              id="title"
-              placeholder="Title"
-              required />
-            <input
-              type="text"
-              name="text"
-              id="text"
-              placeholder="Your message to world..."
-              required />
-            <button type="submit" class="btn-submit">Save Message</button>
-            <button type="button" id="cancel-new-message" class="btn-cancel">
-              Cancel
-            </button>
-          </form>
+      <% if (locals.currentUser || locals.errors) { %>
+        <div class="hero">
+          <% if (locals.currentUser) { %>
+            <h2 class="greeting">Welcome back, <span class="username"><%= currentUser.username %></span></h2>
+          <% } %>
+          <% if (locals.errors) { %>
+          <% if (errors.length > 0) { %>
+            <ul class="errors">
+              <% errors.forEach(error => { %>
+                <li class="error">
+                  <%= error.msg %>
+                </li>
+              <% }) %>
+            </ul>
+          <% } %>
+          <% } %>
+          <hr>
         </div>
-        <% if (!currentUser.has_membership) { %>
-        <button type="button" class="btn-secret">Unhide The Secret</button>
-        <% } %> 
-        <% } %>
-      </ul>
+      <% } %>
+
+      <% if (locals.messages) { %>
+        <div class="messages-container">
+          <h2 class="subtitle">Messages</h2>
+          <p class="description">Discover messages from users all around the world.</p>
+          <ul class="messages">
+            <% if (messages.length > 0) { %>
+            <% messages.forEach(message => { %>
+            <li>
+              <div class="message" data-message-id="<%= message.id %>">
+                <h3 class="title"><%= message.title %></h3>
+                <p class="text"><%= message.text %></p>
+                <% if (locals.currentUser) { %>
+                <% if (currentUser.is_admin || currentUser.has_membership) { %>
+                <span class="timestamp"><%= message.timestamp.toLocaleDateString() %> - <%=message.timestamp.toLocaleTimeString() %></span>
+                <span class="author username"><%= message.author %></span>
+                <% } %>
+                <% if (currentUser.is_admin) { %>
+                <button class="btn-delete">Delete</button>
+                <% } %>
+                <% } %>
+              </div>
+            </li>
+            <% }) %>
+            <% } else { %>
+            <p>Be first to add messages!</p>
+            <% } %>
+            <% if (locals.currentUser) { %>
+            <button type="button" class="btn-new">New Message</button>
+            <div class="new-message-container" hidden>
+              <form action="/messages/new" method="POST">
+                <input
+                  type="text"
+                  name="title"
+                  id="title"
+                  placeholder="Title"
+                  required />
+                <textarea
+                  type="text"
+                  name="text"
+                  id="text"
+                  spellcheck="false"
+                  placeholder="Your message to world..."
+                  required ></textarea>
+                <div class="form-actions">
+                  <button type="button" id="cancel-new-message" class="btn-cancel">Cancel</button>
+                  <button type="submit" class="btn-submit">Save</button>
+                </div>
+              </form>
+            </div>
+            <% if (!currentUser.has_membership) { %>
+            <button type="button" class="btn-secret">Unhide The Secret</button>
+            <% } %> 
+            <% } %>
+          </ul>
+        </div>
       <% } %>
       <div class="delete-container" hidden>
         <form action="/messages/messageId/delete" method="POST"></form>
       </div>
       <dialog class="secret-dialog">
         <div class="secret-container">
+          <h1 class="title">Secret Code</h1>
+          <p class="riddle">
+            What would the reflection of the 'secret code' from a mirror be?
+          </p>
           <form action="/secret" method="POST">
-            <p>
-              What would the reflection of the secret code from a mirror be?
-            </p>
             <div class="input-group">
               <label for="secretCode">Secret Code: </label>
               <input
                 type="text"
                 name="secretCode"
                 id="secretCode"
-                placeholder="V3ry S3cr3t C0d3"
                 required />
             </div>
-            <button type="submit" class="btn-submit">Submit Secret Code</button>
+            <div class="actions">
+              <button type="button" id="close-dialog" class="btn-cancel">Cancel</button>
+              <button type="submit" class="btn-submit">Submit Secret Code</button>
+            </div>
           </form>
-          <button id="close-dialog" class="btn-cancel">X</button>
+          <span class="description">Secret code will provide membership for your account, which is required to add messages.</span>
         </div>
       </dialog>
-      <% if (locals.errors) { %>
-      <% if (errors.length > 0) { %>
-      <ul class="errors">
-        <% errors.forEach(error => { %>
-        <li class="error"><%= error.msg %></li>
-        <% }) %>
-      </ul>
-      <% } %>
-      <% } %>
     </main>
+    <footer>
+      <span>by <a href="https://github.com/Visioness">Visioness</a></span>
+    </footer>
 
     <script>
       const newMessageContainer = document.querySelector(
@@ -121,6 +154,10 @@
         [newMessageButton, cancelButton].forEach((button) => {
           button.addEventListener('click', () => {
             newMessageContainer.hidden = !newMessageContainer.hidden;
+            if (!newMessageContainer.hidden) {
+              newMessageContainer.querySelector('input').focus()
+              newMessageContainer.querySelector('input').scrollIntoView();
+            }
           });
         });
       }
@@ -134,6 +171,12 @@
         closeButton.addEventListener('click', () => {
           secretButton.hidden = false;
           secretDialog.close();
+        });
+
+        secretDialog.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            secretButton.hidden = false;
+          }
         });
       }
 

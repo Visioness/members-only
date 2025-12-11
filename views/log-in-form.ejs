@@ -3,11 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="preload" href="/assets/background.jpg" as="image">
     <title>Members Only | Log In</title>
   </head>
   <body>
     <header>
-      <a href="/">
+      <a class="title" href="/">
         <h1>Members Only</h1>
       </a>
       <nav>
@@ -20,31 +22,42 @@
       </nav>
     </header>
     <main>
-      <form action="/log-in" method="POST">
-        <h2>Log In</h2>
-        <p>Log in to create messages.</p>
-        <div class="input-group">
-          <label for="username">Username: </label>
-          <input
-            type="text"
-            name="username"
-            id="username"
-            placeholder="DoeJohn123 / johndoe@example.com"
-            required />
+      <div class="form-container">
+        <form id="log-in-form" action="/log-in" method="POST">
+          <h2>Log In</h2>
+          <p>Log in to create messages.</p>
+          <div class="input-group">
+            <label for="username">Username: </label>
+            <input
+              type="text"
+              name="username"
+              id="username"
+              placeholder="DoeJohn123 / johndoe@example.com"
+              required />
+          </div>
+          <div class="input-group">
+            <label for="password">Password: </label>
+            <input type="password" name="password" id="password" required />
+          </div>
+          <button type="submit" class="btn-submit">Log In</button>
+        </form>
+        <div class="error-container">
+          <% if (locals.errors) { %>
+          <% if (errors.length> 0) { %>
+            <ul class="errors">
+              <% errors.forEach(error=> { %>
+                <li class="error">
+                  <%= error.msg || error %>
+                </li>
+              <% }) %>
+            </ul>
+          <% } %>
+          <% } %>
         </div>
-        <div class="input-group">
-          <label for="password">Password: </label>
-          <input type="password" name="password" id="password" required />
-        </div>
-        <button type="submit" class="btn-submit">Log In</button>
-      </form>
-      <% if (locals.errors) { %>
-      <ul>
-        <% errors.forEach(error => { %>
-        <li><%= error %></li>
-        <% }) %>
-      </ul>
-      <% } %>
+      </div>
     </main>
+    <footer>
+      <span>by <a href="https://github.com/Visioness">Visioness</a></span>
+    </footer>
   </body>
 </html>

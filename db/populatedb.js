@@ -25,10 +25,14 @@ async function main() {
   console.log('Seeding...');
   const clientConfig = {};
 
-  const { USER, PASSWORD, HOST, DB_PORT, DB } = process.env;
-  clientConfig.connectionString = `postgresql://${USER}:${PASSWORD}@${HOST}:${DB_PORT}/${DB}`;
+  const { USER, PASSWORD, HOST, DB_PORT, DB, DB_CONNECTION_STRING } =
+    process.env;
 
-  if (process.env.NODE_ENV === 'Production') {
+  clientConfig.connectionString =
+    DB_CONNECTION_STRING ||
+    `postgresql://${USER}:${PASSWORD}@${HOST}:${DB_PORT}/${DB}`;
+
+  if (process.env.NODE_ENV === 'production') {
     clientConfig.ssl = { require: true };
   }
 

@@ -16,6 +16,8 @@ const logInRouter = require('./routes/logInRouter');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.set('trust proxy', 1);
+
 // Static files
 app.use(express.static(path.join(__dirname, 'public')));
 
